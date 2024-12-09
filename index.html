@@ -182,69 +182,40 @@
             <div class="contact-container">
                 <form id="contact-form">
                     <div class="form-group">
-                        <label for="name" class="form-label" 
-                            data-en="Full Name" 
-                            data-zh="姓名"
-                            data-ja="お名前">Full Name</label>
-                        <input type="text" id="name" name="name" required 
-                            data-placeholder-en="Enter your full name" 
-                            data-placeholder-zh="请输入您的姓名"
-                            data-placeholder-ja="お名前を入力してください"
-                            class="form-input">
+                        <label for="name" class="form-label" data-en="Full Name *" data-zh="姓名 *" data-ja="氏名 *">Full Name *</label>
+                        <input type="text" id="name" name="name" class="form-input" required
+                            data-en-placeholder="Enter your full name"
+                            data-zh-placeholder="请输入您的姓名"
+                            data-ja-placeholder="氏名を入力してください">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email" class="form-label" data-en="Email *" data-zh="电子邮箱 *" data-ja="メールアドレス *">Email *</label>
+                        <input type="email" id="email" name="email" class="form-input" required
+                            data-en-placeholder="Enter your email address"
+                            data-zh-placeholder="请输入您的电子邮箱"
+                            data-ja-placeholder="メールアドレスを入力してください">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone" class="form-label" data-en="Phone (Optional)" data-zh="电话 (选填)" data-ja="電話番号 (任意)">Phone (Optional)</label>
+                        <input type="tel" id="phone" name="phone" class="form-input"
+                            data-en-placeholder="Enter your phone number"
+                            data-zh-placeholder="请输入您的电话号码"
+                            data-ja-placeholder="電話番号を入力してください">
                     </div>
 
                     <div class="form-group">
-                        <label for="email" class="form-label"
-                            data-en="Email Address" 
-                            data-zh="电子邮箱"
-                            data-ja="メールアドレス">Email Address</label>
-                        <input type="email" id="email" name="email" required 
-                            data-placeholder-en="Enter your email address" 
-                            data-placeholder-zh="请输入您的电子邮箱"
-                            data-placeholder-ja="メールアドレスを入力してください"
-                            class="form-input">
+                        <label for="message" class="form-label" data-en="Additional Information" data-zh="其他信息" data-ja="追加情報">Additional Information</label>
+                        <textarea id="message" name="message" class="form-input" rows="4"
+                            data-en-placeholder="Tell us about your career goals and any specific requirements"
+                            data-zh-placeholder="请告诉我们您的职业目标和具体需求"
+                            data-ja-placeholder="キャリア目標や具体的な要望についてお聞かせください"></textarea>
                     </div>
 
-                    <div class="form-group">
-                        <label for="service" class="form-label"
-                            data-en="Selected Package" 
-                            data-zh="选择套餐"
-                            data-ja="選択したプラン">Selected Package</label>
-                        <select id="service" name="service" required class="form-input">
-                            <option value="" disabled selected
-                                data-en="Choose your package" 
-                                data-zh="请选择套餐"
-                                data-ja="プランを選択してください">Choose your package</option>
-                            <option value="basic"
-                                data-en="Basic Package" 
-                                data-zh="基础套餐"
-                                data-ja="ベーシックプラン">Basic Package</option>
-                            <option value="premium"
-                                data-en="Premium Package" 
-                                data-zh="高级套餐"
-                                data-ja="プレミアムプラン">Premium Package</option>
-                            <option value="enterprise"
-                                data-en="Enterprise Package" 
-                                data-zh="企业套餐"
-                                data-ja="エンタープライズプラン">Enterprise Package</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="message" class="form-label"
-                            data-en="Additional Information" 
-                            data-zh="附加信息"
-                            data-ja="追加情報">Additional Information</label>
-                        <textarea id="message" name="message" required 
-                            data-placeholder-en="Tell us about your career goals and any specific requirements" 
-                            data-placeholder-zh="请告诉我们您的职业目标和具体需求"
-                            data-placeholder-ja="キャリア目標や具体的な要件についてお聞かせください"
-                            class="form-input" rows="4"></textarea>
-                    </div>
-
-                    <button type="submit" class="cta-button submit-button"
+                    <button type="submit" class="submit-button cta-button" 
                         data-en="Submit Request" 
-                        data-zh="提交申请"
+                        data-zh="提交申请" 
                         data-ja="申し込む">Submit Request</button>
                 </form>
             </div>

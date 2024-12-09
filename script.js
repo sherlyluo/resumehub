@@ -98,55 +98,63 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Form submission handling
-    const contactForm = document.getElementById('contact-form');
-    if (contactForm) {
-        contactForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const formData = {
-                name: document.getElementById('name').value,
-                email: document.getElementById('email').value,
-                service: document.getElementById('service').value,
-                message: document.getElementById('message').value
-            };
+    // Form submission
+    document.getElementById('contact-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Get the selected package
+        const selectedPackage = document.querySelector('input[name="pricing-plan"]:checked');
+        if (!selectedPackage) {
+            alert('Please select a package first');
+            return;
+        }
 
-            // Basic form validation
-            if (!formData.name || !formData.email || !formData.service || !formData.message) {
-                const messages = {
-                    en: 'Please fill in all required fields',
-                    zh: '请填写所有必填字段',
-                    ja: '必須項目をすべて入力してください'
-                };
-                alert(messages[document.documentElement.getAttribute('lang')]);
-                return;
+        // Get form data
+        const formData = {
+            name: document.getElementById('name').value,
+            email: document.getElementById('email').value,
+            phone: document.getElementById('phone').value,
+            selected_package: selectedPackage.value,
+            message: document.getElementById('message').value
+        };
+
+        try {
+            // Show loading state
+            const submitButton = document.querySelector('.submit-button');
+            submitButton.classList.add('loading');
+            submitButton.disabled = true;
+
+            // Send data to backend
+            const response = await fetch('http://localhost:5000/api/contact', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                // Success
+                alert('Thank you for your submission! We will contact you soon.');
+                this.reset();
+                // Uncheck radio buttons
+                document.querySelectorAll('input[name="pricing-plan"]').forEach(radio => radio.checked = false);
+            } else {
+                // Error
+                alert(result.error || 'Failed to submit form. Please try again.');
             }
-
-            // Email validation
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(formData.email)) {
-                const messages = {
-                    en: 'Please enter a valid email address',
-                    zh: '请输入有效的邮箱地址',
-                    ja: '有効なメールアドレスを入力してください'
-                };
-                alert(messages[document.documentElement.getAttribute('lang')]);
-                return;
-            }
-
-            // Simulate form submission
-            console.log('Sending form data to info@eliteresumeau.com');
-            const successMessages = {
-                en: 'Thank you for your interest! We will contact you shortly.',
-                zh: '感谢您的关注！我们会尽快与您联系。',
-                ja: 'お問い合わせありがとうございます！近日中にご連絡させていただきます。'
-            };
-            alert(successMessages[document.documentElement.getAttribute('lang')]);
-            contactForm.reset();
-
-            console.log('Form submitted:', formData);
-        });
-    }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Failed to submit form. Please try again later.');
+        } finally {
+            // Remove loading state
+            const submitButton = document.querySelector('.submit-button');
+            submitButton.classList.remove('loading');
+            submitButton.disabled = false;
+        }
+    });
 
     // Smooth scrolling for navigation links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
