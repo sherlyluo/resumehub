@@ -1,0 +1,24 @@
+name = "resumehub"
+type = "webpack"
+account_id = "" # Your Cloudflare account ID
+workers_dev = true
+route = ""      # Your domain route, e.g., "example.com/*"
+zone_id = ""    # Your zone ID if using custom domain
+
+[site]
+bucket = "./"
+entry-point = "workers-site"
+
+[build]
+command = ""
+upload.format = "service-worker"
+
+[build.upload]
+dir = "workers-site"
+
+[kv_namespaces]
+binding = "CONTACTS"
+
+# Optional: Configure environment variables
+[vars]
+ENVIRONMENT = "production"
