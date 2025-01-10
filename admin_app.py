@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, render_template, flash, request
+from flask import Flask, redirect, url_for, render_template, flash, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_admin import Admin, AdminIndexView, expose
 from flask_admin.contrib.sqla import ModelView
@@ -15,11 +15,13 @@ from email.utils import formataddr
 from email.utils import formatdate
 from email.utils import make_msgid
 import random
+from flask_cors import CORS
 
 # Load environment variables
 load_dotenv()
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///contacts.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -372,6 +374,35 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('login'))
+
+@app.route('/api/contact', methods=['POST'])
+def submit_contact():
+    try:
+        data = request.get_json()
+        
+        # Validate required fields
+        required_fields = ['name', 'email', 'selected_package']
+        for field in required_fields:
+            if not data.get(field):
+                return jsonify({'error': f'{field} is required'}), 400
+        
+        # Create new contact
+        contact = Contact(
+            name=data['name'],
+            email=data['email'],
+            phone=data.get('phone', ''),
+            selected_package=data['selected_package'],
+            message=data.get('message', '')
+        )
+        
+        db.session.add(contact)
+        db.session.commit()
+        
+        return jsonify({'message': 'Contact form submitted successfully'}), 200
+        
+    except Exception as e:
+        print(f"Error submitting contact form: {str(e)}")
+        return jsonify({'error': 'Internal server error'}), 500
 
 # Create admin templates directory
 os.makedirs('templates/admin', exist_ok=True)

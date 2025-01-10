@@ -124,8 +124,8 @@ document.addEventListener('DOMContentLoaded', function() {
             submitButton.classList.add('loading');
             submitButton.disabled = true;
 
-            // Send data to backend
-            const response = await fetch('http://localhost:5000/api/contact', {
+            // Send data to backend using relative path
+            const response = await fetch('/api/contact', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
