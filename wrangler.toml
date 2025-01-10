@@ -1,19 +1,7 @@
 name = "resumehub"
 compatibility_date = "2024-01-10"
 
-[site]
-bucket = "./"
-
-[build]
-command = ""
-
-[functions]
-directory = "functions"
-
 [[kv_namespaces]]
 binding = "CONTACTS"
-id = ""  # Add your KV namespace ID here
-
-# Optional: Configure environment variables
-[vars]
-ENVIRONMENT = "production"
+preview_id = ""  # Add your preview KV namespace ID here
+id = ""         # Add your production KV namespace ID here
