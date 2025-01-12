@@ -48,8 +48,31 @@ export default {
       }
 
       // Serve static files
-      return env.ASSETS.fetch(request);
-      
+      if (url.pathname === '/' || url.pathname === '/index.html') {
+        const response = await fetch('https://raw.githubusercontent.com/sherlyluo/resumehub/main/public/index.html');
+        const content = await response.text();
+        return new Response(content, {
+          headers: { 'Content-Type': 'text/html' },
+        });
+      }
+
+      if (url.pathname === '/script.js') {
+        const response = await fetch('https://raw.githubusercontent.com/sherlyluo/resumehub/main/public/script.js');
+        const content = await response.text();
+        return new Response(content, {
+          headers: { 'Content-Type': 'application/javascript' },
+        });
+      }
+
+      if (url.pathname === '/styles.css') {
+        const response = await fetch('https://raw.githubusercontent.com/sherlyluo/resumehub/main/public/styles.css');
+        const content = await response.text();
+        return new Response(content, {
+          headers: { 'Content-Type': 'text/css' },
+        });
+      }
+
+      return new Response('Not Found', { status: 404 });
     } catch (error) {
       return new Response(
         JSON.stringify({ error: 'Internal server error' }),
