@@ -8,3 +8,7 @@ bucket = "./public"
 routes = [
   { pattern = "resumehub-api.xiuxiu-luo.workers.dev", custom_domain = true }
 ]
+
+[vars]
+# The following will be replaced by actual values in the Cloudflare Dashboard
+SENDGRID_API_KEY = ""
