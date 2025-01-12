@@ -1,32 +1,27 @@
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     try {
       const url = new URL(request.url);
       
       // Handle API requests
       if (url.pathname === '/api/contact' && request.method === 'POST') {
-        const data = await request.json();
-        
-        // Validate required fields
-        const requiredFields = ['name', 'email', 'selected_package'];
-        for (const field of requiredFields) {
-          if (!data[field]) {
-            return new Response(
-              JSON.stringify({ error: `${field} is required` }),
-              { 
-                status: 400,
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Access-Control-Allow-Origin': '*'
+        ctx.waitUntil(
+          (async () => {
+            try {
+              const data = await request.clone().json();
+              ctx.log.info('Form submission data:', { data });
+              
+              // Validate required fields
+              const requiredFields = ['name', 'email', 'selected_package'];
+              for (const field of requiredFields) {
+                if (!data[field]) {
+                  ctx.log.error(`Missing required field: ${field}`);
+                  throw new Error(`${field} is required`);
                 }
               }
-            );
-          }
-        }
 
-        // Send email notification using SendGrid
-        try {
-          const emailContent = `
+              // Send email notification
+              const emailContent = `
 New Contact Form Submission:
 --------------------------
 Name: ${data.name}
@@ -38,29 +33,51 @@ Message: ${data.message || 'No message provided'}
 Submitted at: ${new Date().toISOString()}
 `;
 
-          await fetch('https://api.sendgrid.com/v3/mail/send', {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${env.SENDGRID_API_KEY}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              personalizations: [{
-                to: [{ email: 'xiuxiu.luo@gmail.com', name: 'Xiuxiu Luo' }]
-              }],
-              from: { email: 'noreply@resumehub.com', name: 'ResumeHub Contact Form' },
-              subject: `New Contact Form Submission from ${data.name}`,
-              content: [{
-                type: 'text/plain',
-                value: emailContent
-              }]
-            })
-          });
-        } catch (emailError) {
-          console.error('Failed to send email:', emailError);
-          // Continue with the response even if email fails
-        }
+              ctx.log.info('Sending email via MailChannels');
+              const emailResponse = await fetch('https://api.mailchannels.net/tx/v1/send', {
+                method: 'POST',
+                headers: {
+                  'content-type': 'application/json',
+                },
+                body: JSON.stringify({
+                  personalizations: [
+                    {
+                      to: [{ email: 'xiuxiu.luo@gmail.com', name: 'Xiuxiu Luo' }],
+                    },
+                  ],
+                  from: {
+                    email: 'noreply@resumehub.com',
+                    name: 'ResumeHub Contact Form',
+                  },
+                  subject: `New Contact Form Submission from ${data.name}`,
+                  content: [
+                    {
+                      type: 'text/plain',
+                      value: emailContent,
+                    },
+                  ],
+                }),
+              });
 
+              const emailResponseText = await emailResponse.text();
+              ctx.log.info('Email API response:', {
+                status: emailResponse.status,
+                response: emailResponseText
+              });
+
+              if (!emailResponse.ok) {
+                throw new Error(`Email API error: ${emailResponse.status} - ${emailResponseText}`);
+              }
+            } catch (error) {
+              ctx.log.error('Error processing form:', {
+                error: error.message,
+                stack: error.stack
+              });
+            }
+          })()
+        );
+
+        // Always return success to the client
         return new Response(
           JSON.stringify({ message: 'Contact form submitted successfully' }),
           { 
@@ -111,6 +128,10 @@ Submitted at: ${new Date().toISOString()}
 
       return new Response('Not Found', { status: 404 });
     } catch (error) {
+      ctx.log.error('Unhandled error:', {
+        error: error.message,
+        stack: error.stack
+      });
       return new Response(
         JSON.stringify({ error: 'Internal server error' }),
         { 
