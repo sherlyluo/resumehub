@@ -24,6 +24,49 @@ export default {
           }
         }
 
+        // Send email notification
+        try {
+          const emailContent = `
+New Contact Form Submission:
+--------------------------
+Name: ${data.name}
+Email: ${data.email}
+Phone: ${data.phone || 'Not provided'}
+Selected Package: ${data.selected_package}
+Message: ${data.message || 'No message provided'}
+--------------------------
+Submitted at: ${new Date().toISOString()}
+`;
+
+          await fetch('https://api.mailchannels.net/tx/v1/send', {
+            method: 'POST',
+            headers: {
+              'content-type': 'application/json',
+            },
+            body: JSON.stringify({
+              personalizations: [
+                {
+                  to: [{ email: 'xiuxiu.luo@gmail.com', name: 'Xiuxiu Luo' }],
+                },
+              ],
+              from: {
+                email: 'noreply@resumehub.com',
+                name: 'ResumeHub Contact Form',
+              },
+              subject: `New Contact Form Submission from ${data.name}`,
+              content: [
+                {
+                  type: 'text/plain',
+                  value: emailContent,
+                },
+              ],
+            }),
+          });
+        } catch (emailError) {
+          console.error('Failed to send email:', emailError);
+          // Continue with the response even if email fails
+        }
+
         return new Response(
           JSON.stringify({ message: 'Contact form submitted successfully' }),
           { 
