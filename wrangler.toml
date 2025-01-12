@@ -1,7 +1,5 @@
 name = "resumehub"
 compatibility_date = "2024-01-10"
 
-[[kv_namespaces]]
-binding = "CONTACTS"
-preview_id = ""  # Add your preview KV namespace ID here
-id = ""         # Add your production KV namespace ID here
+[site]
+bucket = "./public"

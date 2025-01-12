@@ -47,7 +47,9 @@ export default {
         });
       }
 
-      return new Response('Not found', { status: 404 });
+      // Serve static files
+      return env.ASSETS.fetch(request);
+      
     } catch (error) {
       return new Response(
         JSON.stringify({ error: 'Internal server error' }),
