@@ -124,8 +124,8 @@ document.addEventListener('DOMContentLoaded', function() {
             submitButton.classList.add('loading');
             submitButton.disabled = true;
 
-            // Send data to backend using Cloudflare Worker URL
-            const response = await fetch('https://adcadd24-resumehub-api.xiuxiu-luo.workers.dev/api/contact', {
+            // Send data to backend using Worker URL
+            const response = await fetch('https://resumehub-api.xiuxiu-luo.workers.dev/api/contact', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
