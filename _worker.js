@@ -24,15 +24,6 @@ export default {
           }
         }
 
-        // Generate unique ID for the contact
-        const contactId = Date.now().toString();
-        
-        // Store contact in KV
-        await env.CONTACTS.put(contactId, JSON.stringify({
-          ...data,
-          created_at: new Date().toISOString()
-        }));
-
         return new Response(
           JSON.stringify({ message: 'Contact form submitted successfully' }),
           { 
@@ -52,15 +43,12 @@ export default {
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
             'Access-Control-Allow-Headers': 'Content-Type',
-          },
+          }
         });
       }
 
-      // Serve static files
-      return env.ASSETS.fetch(request);
-      
-    } catch (err) {
-      console.error('Error:', err);
+      return new Response('Not found', { status: 404 });
+    } catch (error) {
       return new Response(
         JSON.stringify({ error: 'Internal server error' }),
         { 
