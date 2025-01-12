@@ -12,3 +12,7 @@ routes = [
 [vars]
 # The following will be replaced by actual values in the Cloudflare Dashboard
 SENDGRID_API_KEY = ""
+SENDGRID_API_KEY_CONFIG = {
+  api_key = SENDGRID_API_KEY,
+  # Other SendGrid API key configuration options
+}

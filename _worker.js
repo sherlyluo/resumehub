@@ -9,7 +9,7 @@ export default {
           (async () => {
             try {
               const data = await request.clone().json();
-              ctx.log.info('Form submission data:', { data });
+              ctx.log.info('Form submission received:', { data });
               
               // Validate required fields
               const requiredFields = ['name', 'email', 'selected_package'];
@@ -20,7 +20,7 @@ export default {
                 }
               }
 
-              // Send email notification
+              // Send email notification using SendGrid
               const emailContent = `
 New Contact Form Submission:
 --------------------------
@@ -33,41 +33,81 @@ Message: ${data.message || 'No message provided'}
 Submitted at: ${new Date().toISOString()}
 `;
 
-              ctx.log.info('Sending email via MailChannels');
-              const emailResponse = await fetch('https://api.mailchannels.net/tx/v1/send', {
+              ctx.log.info('Sending email via SendGrid');
+              const emailResponse = await fetch('https://api.sendgrid.com/v3/mail/send', {
                 method: 'POST',
                 headers: {
-                  'content-type': 'application/json',
+                  'Authorization': `Bearer ${env.SENDGRID_API_KEY}`,
+                  'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                  personalizations: [
-                    {
-                      to: [{ email: 'xiuxiu.luo@gmail.com', name: 'Xiuxiu Luo' }],
-                    },
-                  ],
-                  from: {
-                    email: 'noreply@resumehub.com',
-                    name: 'ResumeHub Contact Form',
-                  },
+                  personalizations: [{
+                    to: [{ email: 'xiuxiu.luo@gmail.com', name: 'Xiuxiu Luo' }]
+                  }],
+                  from: { email: 'noreply@resumehub.com', name: 'ResumeHub Contact Form' },
                   subject: `New Contact Form Submission from ${data.name}`,
-                  content: [
-                    {
-                      type: 'text/plain',
-                      value: emailContent,
-                    },
-                  ],
-                }),
+                  content: [{
+                    type: 'text/plain',
+                    value: emailContent
+                  }]
+                })
               });
 
-              const emailResponseText = await emailResponse.text();
-              ctx.log.info('Email API response:', {
-                status: emailResponse.status,
-                response: emailResponseText
-              });
+              const responseStatus = emailResponse.status;
+              ctx.log.info('SendGrid API response status:', { status: responseStatus });
 
               if (!emailResponse.ok) {
-                throw new Error(`Email API error: ${emailResponse.status} - ${emailResponseText}`);
+                const errorText = await emailResponse.text();
+                ctx.log.error('SendGrid API error:', { 
+                  status: responseStatus,
+                  response: errorText 
+                });
+                throw new Error(`SendGrid API error: ${responseStatus}`);
               }
+
+              ctx.log.info('Email sent successfully');
+
+              // Send confirmation email to the user
+              const confirmationResponse = await fetch('https://api.sendgrid.com/v3/mail/send', {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${env.SENDGRID_API_KEY}`,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  personalizations: [{
+                    to: [{ email: data.email, name: data.name }]
+                  }],
+                  from: { email: 'noreply@resumehub.com', name: 'ResumeHub' },
+                  subject: 'Thank you for contacting ResumeHub',
+                  content: [{
+                    type: 'text/plain',
+                    value: `Dear ${data.name},
+
+Thank you for contacting ResumeHub! We have received your inquiry about our ${data.selected_package} package.
+
+We will review your submission and get back to you within 24 hours.
+
+Your submission details:
+- Package Selected: ${data.selected_package}
+- Email: ${data.email}
+${data.phone ? `- Phone: ${data.phone}` : ''}
+${data.message ? `- Message: ${data.message}` : ''}
+
+Best regards,
+The ResumeHub Team`
+                  }]
+                })
+              });
+
+              if (!confirmationResponse.ok) {
+                const errorText = await confirmationResponse.text();
+                ctx.log.error('Confirmation email error:', {
+                  status: confirmationResponse.status,
+                  response: errorText
+                });
+              }
+
             } catch (error) {
               ctx.log.error('Error processing form:', {
                 error: error.message,
